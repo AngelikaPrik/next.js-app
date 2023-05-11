@@ -1,4 +1,4 @@
-export type CustomerStatus = "active" | "inactive"
+export type CustomerStatus = 'active' | 'inactive'
 
 export interface Balance {
   currency: string
@@ -8,7 +8,7 @@ export interface Balance {
 }
 export interface BankAccount {
   id: string
-  name: string
+  account_name: string
   bik: string
   account_number: string
   corr_account_number: string
@@ -16,9 +16,9 @@ export interface BankAccount {
   created_at: string
   updated_at: string
 }
-export interface Oraganisation {
+export interface Organization {
   id: string
-  name: string
+  org_name: string
   inn: string
   kpp: string
   ogrn: string
@@ -32,7 +32,7 @@ export interface Customer {
   name: string
   email: string
   deferral_days: number
-  org: Oraganisation
+  org: Organization
   balance: Balance
   metadata: Record<string, string>
   created_at: string
@@ -40,4 +40,36 @@ export interface Customer {
   status: CustomerStatus
   invoice_prefix: string
   invoice_emails: string[]
+}
+
+export interface ListCustomersResponse {
+  customers: Customer[]
+}
+
+export interface CustomerRequest {
+  name: string
+  email: string
+  deferral_days: number | null
+  credit_limit: number | null
+  organization: OrganizationRequest
+  metadata: Record<string, string>
+  invoice_emails: string[]
+  invoice_prefix: string
+}
+
+export interface OrganizationRequest {
+  name: string
+  inn: string
+  kpp: string
+  ogrn: string
+  addr: string
+  bank_accounts: BankAccountRequest[]
+}
+
+export interface BankAccountRequest {
+  name: string
+  bik: string
+  account_number: string
+  corr_account_number: string
+  is_default: boolean
 }

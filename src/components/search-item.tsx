@@ -1,6 +1,9 @@
-import { InputBase, styled, alpha } from '@mui/material';
- import SearchIcon from '@mui/icons-material/Search'
- 
+import React from 'react'
+import { InputBase, styled, alpha } from '@mui/material'
+import SearchIcon from '@mui/icons-material/Search'
+import { useAppDispatch, useAppSelector } from '@/hooks/redux'
+import { setFilteredData } from '@/store/slices/customerSlice'
+
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   borderRadius: theme.shape.borderRadius,
@@ -42,13 +45,21 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }))
 
 export default function SearchItem() {
+  const { filteredData } = useAppSelector(state => state.customerSlice)
+  const dispatch = useAppDispatch()
+
+  const onChangeFilteredData = (e: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setFilteredData(e.target.value))
+  }
   return (
     <Search>
       <SearchIconWrapper>
         <SearchIcon />
       </SearchIconWrapper>
       <StyledInputBase
-        placeholder='Search…'
+        placeholder='Поиск…'
+        onChange={onChangeFilteredData}
+        value={filteredData}
         inputProps={{ 'aria-label': 'search' }}
       />
     </Search>

@@ -15,8 +15,11 @@ import Layout from '@/components/layout'
 import { getAllCustomers } from '@/service/customer-service'
 import Modal from '@/components/modal'
 
+import { useMemo } from 'react'
+import { useAppSelector } from '@/hooks/redux'
+
 const columns: GridColDef[] = [
-  { field: 'name', headerName: 'Имя', width: 200 },
+  { field: 'name', headerName: 'Имя', width: 220 },
   {
     field: 'id',
     headerName: 'ID',
@@ -66,6 +69,17 @@ interface PropsType {
 }
 
 export default function Home({ customers }: PropsType) {
+  const { filteredData } = useAppSelector(state => state.customerSlice)
+  const { modal } = useAppSelector(state => state.modalSlice)
+
+  const filteredClients = useMemo(() => {
+    return customers
+      .filter(({ name }) =>
+        name.toLowerCase().includes(filteredData.toLowerCase())
+      )
+      .map(item => item)
+  }, [customers, filteredData])
+
   return (
     <>
       <Head>
@@ -76,14 +90,14 @@ export default function Home({ customers }: PropsType) {
       </Head>
       <Layout>
         <DataGrid
-          rows={customers}
+          rows={filteredClients}
           columns={columns}
           checkboxSelection
           disableRowSelectionOnClick
           hideFooterPagination
           hideFooter
         />
-        <Modal />
+        {modal && <Modal />}
       </Layout>
     </>
   )
