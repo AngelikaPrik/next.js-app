@@ -1,22 +1,26 @@
 import { ChangeEvent, useState } from 'react'
 
-import { formContent } from '@/constants'
-import { InputField } from '../accordion'
 import { useAppDispatch, useAppSelector } from '@/hooks/redux'
 import { setClientForm } from '@/store/slices/customerSlice'
 import StyledButton from '../styled-button'
 import { Box, Typography } from '@mui/material'
 import { v4 as uuidv4 } from 'uuid'
+import { InputField } from '../input-field'
+import { createForm } from './utils'
 
-const initialState = { ...formContent.emails.forms }
+type FormsType = Record<string, Record<string, string>>
 
-export default function EmailsForm() {
-  const [forms, setForms] = useState(initialState)
+const initialForms: FormsType = {
+  main: createForm('Email', 'invoice_emails', 'Введите email'),
+}
+
+export const EmailsForm = () => {
+  const [forms, setForms] = useState(initialForms)
   const { clientForm } = useAppSelector(state => state.customerSlice)
   const dispatch = useAppDispatch()
 
   const onChangeClient = (e: ChangeEvent<HTMLInputElement>, key: string) => {
-    const { name, value } = e.target
+    const { value } = e.target
 
     dispatch(
       setClientForm({
@@ -28,7 +32,7 @@ export default function EmailsForm() {
 
   const addEmail = () => {
     const key = `${uuidv4()}`
-    const newForm = { ...formContent.emails.forms.main }
+    const newForm = { ...initialForms.main }
     setForms(prev => ({ ...prev, [key]: newForm }))
     dispatch(
       setClientForm({

@@ -1,11 +1,19 @@
-import React, { ChangeEvent } from 'react'
+import { ChangeEvent } from 'react'
 
-import { formContent } from '@/constants'
-import { InputField } from '../accordion'
+import { InputField } from '../input-field'
 import { useAppDispatch, useAppSelector } from '@/hooks/redux'
 import { setClientForm } from '@/store/slices/customerSlice'
+import { createForm } from './utils'
 
-export default function OrganizationForm() {
+const forms = [
+  createForm('Название организации','name','Введите название организации'),
+  createForm('ИНН организации', 'inn', 'Введите ИНН организации'),
+  createForm('КПП организации', 'kpp', 'Введите КПП организации'),
+  createForm('ОГРН организации', 'ogrn', 'Введите ОГРН организации'),
+  createForm('Юридический адрес', 'addr', 'Введите юридический адрес'),
+]
+
+export const OrganizationForm = () => {
   const { clientForm } = useAppSelector(state => state.customerSlice)
   const dispatch = useAppDispatch()
 
@@ -21,7 +29,7 @@ export default function OrganizationForm() {
 
   return (
     <>
-      {formContent.org.forms.map(({ title, name }, i) => (
+      {forms.map(({ title, name }, i) => (
         <InputField
           key={i}
           title={title}

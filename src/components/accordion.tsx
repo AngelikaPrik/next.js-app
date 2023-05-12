@@ -1,25 +1,24 @@
-import { useState, SyntheticEvent, ChangeEvent } from 'react'
-import { styled, Typography, TextField } from '@mui/material'
+import { useState, SyntheticEvent, ReactNode } from 'react'
+import { styled, Typography } from '@mui/material'
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp'
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion'
 import MuiAccordionSummary, {
   AccordionSummaryProps,
 } from '@mui/material/AccordionSummary'
 import MuiAccordionDetails from '@mui/material/AccordionDetails'
-import CustomerForm from './forms/customer-form'
-import { formContent } from '@/constants'
-import OrganizationForm from './forms/organization-form'
-import BankForm from './forms/bank-form'
-import EmailsForm from './forms/emails-form'
-import MetaForm from './forms/meta-form'
+import {
+  CustomerForm,
+  OrganizationForm,
+  BankForm,
+  EmailsForm,
+  MetaForm,
+} from './forms'
 
 const Accordion = styled((props: AccordionProps) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
 ))({
   width: '35rem',
-  '&:before': {
-    display: 'none',
-  },
+  '&:before': { display: 'none' },
 })
 
 const AccordionSummary = styled((props: AccordionSummaryProps) => (
@@ -45,6 +44,18 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   flexDirection: 'column',
 }))
 
+function createData(exp: string, title: string, component: ReactNode) {
+  return { exp, title, component }
+}
+
+const accordionsArray = [
+  createData('customer', 'Детали клиента', <CustomerForm />),
+  createData('org', 'Детали организации', <OrganizationForm />),
+  createData('bank', 'Банковские счета', <BankForm />),
+  createData('invoice_emails', 'Emails для счетов', <EmailsForm />),
+  createData('meta', 'Meta', <MetaForm />),
+]
+
 export default function StyledAccordions() {
   const [expanded, setExpanded] = useState<string | false>('')
 
@@ -54,90 +65,15 @@ export default function StyledAccordions() {
     }
 
   return (
-    <div>
-      <Accordion onChange={handleChange(formContent.customer.exp)}>
-        <AccordionSummary
-          aria-controls={`${formContent.customer.exp}d-content`}
-          id={`${formContent.customer.exp}d-header`}
-        >
-          <Typography>{formContent.customer.title}</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <CustomerForm />
-        </AccordionDetails>
-      </Accordion>
-
-      <Accordion onChange={handleChange(formContent.org.exp)}>
-        <AccordionSummary
-          aria-controls={`${formContent.org.exp}d-content`}
-          id={`${formContent.org.exp}d-header`}
-        >
-          <Typography>{formContent.org.title}</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <OrganizationForm />
-        </AccordionDetails>
-      </Accordion>
-      <Accordion onChange={handleChange(formContent.bank.exp)}>
-        <AccordionSummary
-          aria-controls={`${formContent.bank.exp}d-content`}
-          id={`${formContent.bank.exp}d-header`}
-        >
-          <Typography>{formContent.bank.title}</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <BankForm />
-        </AccordionDetails>
-      </Accordion>
-      <Accordion onChange={handleChange(formContent.emails.exp)}>
-        <AccordionSummary
-          aria-controls={`${formContent.emails.exp}d-content`}
-          id={`${formContent.emails.exp}d-header`}
-        >
-          <Typography>{formContent.emails.title}</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <EmailsForm />
-        </AccordionDetails>
-      </Accordion>
-      <Accordion onChange={handleChange(formContent.meta.exp)}>
-        <AccordionSummary
-          aria-controls={`${formContent.meta.exp}d-content`}
-          id={`${formContent.meta.exp}d-header`}
-        >
-          <Typography>{formContent.meta.title}</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <MetaForm />
-        </AccordionDetails>
-      </Accordion>
-    </div>
+    <>
+      {accordionsArray.map(({ exp, title, component }) => (
+        <Accordion onChange={handleChange(exp)} key={exp}>
+          <AccordionSummary id={`${exp}d-header`}>
+            <Typography>{title}</Typography>
+          </AccordionSummary>
+          <AccordionDetails>{component}</AccordionDetails>
+        </Accordion>
+      ))}
+    </>
   )
-}
-
-export const InputField = ({
-  title,
-  name,
-  value,
-  onChange,
-}: InputFieldProps) => {
-  return (
-    <TextField
-      required
-      label={title}
-      name={name}
-      size='small'
-      fullWidth
-      margin='normal'
-      value={value || ''}
-      onChange={onChange}
-    />
-  )
-}
-
-interface InputFieldProps {
-  title: string
-  name: string
-  value: string | number
-  onChange: (e: ChangeEvent<HTMLInputElement>) => void
 }

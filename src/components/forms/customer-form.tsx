@@ -1,11 +1,26 @@
 import React, { ChangeEvent } from 'react'
 
-import { formContent } from '@/constants'
-import { InputField } from '../accordion'
 import { useAppDispatch, useAppSelector } from '@/hooks/redux'
 import { setClientForm } from '@/store/slices/customerSlice'
+import { InputField } from '../input-field'
+import { createForm } from './utils'
 
-export default function CustomerForm() {
+const forms = [
+  createForm('Имя', 'name', 'Введите имя'),
+  createForm('Email', 'email', 'Введите email'),
+  createForm(
+    'Дней отстрочки',
+    'deferral_days',
+    'Дней отсрочки должно быть больше или равно нулю'
+  ),
+  createForm(
+    'Кредитный лимит',
+    'credit_limit',
+    'Кредитный лимит должен быть больше или равен нулю'
+  ),
+]
+
+export const CustomerForm = () => {
   const { clientForm } = useAppSelector(state => state.customerSlice)
   const dispatch = useAppDispatch()
 
@@ -21,11 +36,12 @@ export default function CustomerForm() {
 
   return (
     <>
-      {formContent.customer.forms.map(({ title, name }, i) => (
+      {forms.map(({ title, name, helper_text }, i) => (
         <InputField
           key={i}
           title={title}
           name={name}
+          helperText={helper_text}
           value={clientForm.customer[name]}
           onChange={onChangeClient}
         />

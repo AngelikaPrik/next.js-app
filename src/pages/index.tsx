@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { Customer } from '@/models'
+import { Customer, CustomerRequest } from '@/models'
 
 import {
   DataGrid,
@@ -12,17 +12,20 @@ import moment from 'moment'
 import FileCopyIcon from '@mui/icons-material/FileCopy'
 import { IconButton } from '@mui/material'
 import Layout from '@/components/layout'
-import { getAllCustomers } from '@/service/customer-service'
+import { getAllCustomers, postCustomer } from '@/service/customer-service'
 import Modal from '@/components/modal'
 
 import { useMemo } from 'react'
-import { useAppSelector } from '@/hooks/redux'
+import { useAppDispatch, useAppSelector } from '@/hooks/redux'
+import StyledAccordions from '@/components/accordion'
+import { setModal } from '@/store/slices/modalSlice'
 
 const columns: GridColDef[] = [
-  { field: 'name', headerName: 'Имя', width: 220 },
+  { field: 'name', headerName: 'Имя', type: 'string', width: 220 },
   {
     field: 'id',
     headerName: 'ID',
+    type: 'string',
     width: 250,
     renderCell: (params: GridRenderCellParams) => (
       <>
@@ -69,8 +72,10 @@ interface PropsType {
 }
 
 export default function Home({ customers }: PropsType) {
-  const { filteredData } = useAppSelector(state => state.customerSlice)
-  const { modal } = useAppSelector(state => state.modalSlice)
+  const { filteredData, clientForm } = useAppSelector(
+    state => state.customerSlice
+  )
+  const dispatch = useAppDispatch()
 
   const filteredClients = useMemo(() => {
     return customers
@@ -79,6 +84,51 @@ export default function Home({ customers }: PropsType) {
       )
       .map(item => item)
   }, [customers, filteredData])
+
+  const convertClientToRequest = (): CustomerRequest => {
+    const {
+      customer,
+      organization,
+      bank_accounts,
+      metadata,
+      invoice_emails,
+      invoice_prefix,
+    } = clientForm
+
+    const customerRequest: CustomerRequest = {
+      name: customer.name,
+      email: customer.email,
+      deferral_days: customer.deferral_days,
+      credit_limit: customer.credit_limit,
+      organization: {
+        name: organization.name,
+        inn: organization.inn,
+        kpp: organization.kpp,
+        ogrn: organization.ogrn,
+        addr: organization.addr,
+        bank_accounts: Object.keys(bank_accounts).map(key => {
+          const account = bank_accounts[key]
+          return {
+            name: account.name,
+            bik: account.bik,
+            account_number: account.account_number,
+            corr_account_number: account.corr_account_number,
+            is_default: account.is_default,
+          }
+        }),
+      },
+      metadata,
+      invoice_emails: Object.values(invoice_emails),
+      invoice_prefix,
+    }
+
+    return customerRequest
+  }
+
+  const postCustomerData = () => {
+    postCustomer(convertClientToRequest())
+    dispatch(setModal(false))
+  }
 
   return (
     <>
@@ -97,7 +147,13 @@ export default function Home({ customers }: PropsType) {
           hideFooterPagination
           hideFooter
         />
-        {modal && <Modal />}
+        <Modal
+          title='Создание клиента'
+          textButton='Создать'
+          onClick={postCustomerData}
+        >
+          <StyledAccordions />
+        </Modal>
       </Layout>
     </>
   )

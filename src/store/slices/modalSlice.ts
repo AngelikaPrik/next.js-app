@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 
 interface IInitialState {
   modal: boolean
@@ -12,7 +12,7 @@ export const modalSlice = createSlice({
   name: 'modal',
   initialState,
   reducers: {
-    setModal(state, { payload }) {
+    setModal(state, { payload }:PayloadAction<boolean>) {
       state.modal = payload
     },
   },

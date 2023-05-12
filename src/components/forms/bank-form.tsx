@@ -1,7 +1,5 @@
 import { ChangeEvent, useState } from 'react'
 
-import { formContent } from '@/constants'
-import { InputField } from '../accordion'
 import { useAppDispatch, useAppSelector } from '@/hooks/redux'
 import {
   setClientForm,
@@ -10,11 +8,26 @@ import {
 import StyledButton from '../styled-button'
 import { Box, Switch, Typography } from '@mui/material'
 import { v4 as uuidv4 } from 'uuid'
+import { InputField } from '../input-field'
+import { createForm } from './utils'
 
-const initialState = { ...formContent.bank.forms }
+type FormsType = Record<string, Record<string, string>[]>
 
-export default function BankForm() {
-  const [forms, setForms] = useState(initialState)
+const initialForms: FormsType = {
+  main: [
+    createForm('Название счета', 'name', 'Введите название счета'),
+    createForm('Номер счета', 'account_number', 'Введите номер счета'),
+    createForm('БИК счета', 'bik', 'Введите БИК счета'),
+    createForm(
+      'Корр. номер счета',
+      'corr_account_number',
+      'Введите корр. номер счета'
+    ),
+  ],
+}
+
+export const BankForm = () => {
+  const [forms, setForms] = useState<FormsType>(initialForms)
   const { clientForm } = useAppSelector(state => state.customerSlice)
   const dispatch = useAppDispatch()
 
@@ -34,7 +47,7 @@ export default function BankForm() {
 
   const addBankAccount = () => {
     const key = `${uuidv4()}`
-    const newForm = [...formContent.bank.forms.main]
+    const newForm = [...initialForms.main]
     const valueForm = {
       name: '',
       bik: '',
@@ -90,12 +103,12 @@ export default function BankForm() {
               justifyContent='space-between'
             >
               <Box width='55%' mb={1}>
-                {forms[key].map((item, i) => (
+                {forms[key].map(({ title, name }, i) => (
                   <InputField
                     key={i}
-                    title={item.title}
-                    name={item.name}
-                    value={clientForm.bank_accounts[key][item.name]}
+                    title={title}
+                    name={name}
+                    value={clientForm.bank_accounts[key][name]}
                     onChange={e => onChangeClient(e, key)}
                   />
                 ))}
@@ -122,7 +135,11 @@ export default function BankForm() {
                 Дефолтный счет
               </Typography>
               <Switch
-                checked={clientForm.bank_accounts[key].is_default}
+                checked={
+                  clientForm.bank_accounts[key].is_default as
+                    | boolean
+                    | undefined
+                }
                 onClick={() => setDefaultAccount(key)}
               />
             </Box>

@@ -1,6 +1,5 @@
 import { ChangeEvent } from 'react'
 
-import { formContent } from '@/constants'
 import { useAppDispatch, useAppSelector } from '@/hooks/redux'
 import {
   TableContainer,
@@ -13,23 +12,22 @@ import {
   Typography,
   Box,
   Stack,
-  TextField,
 } from '@mui/material'
 import InboxIcon from '@mui/icons-material/Inbox'
 import CloseIcon from '@mui/icons-material/Close'
 import { useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { InputField } from '../accordion'
+import { InputField } from '../input-field'
 import { setClientForm } from '@/store/slices/customerSlice'
+
+type FormsType = Record<string, Record<string, string>>
 
 const StyledCell = styled(TableCell)({
   border: '1px solid #e0e0e0',
 })
 
-const initialState = { ...formContent.meta.forms }
-
-export default function MetaForm() {
-  const [forms, setForms] = useState(initialState)
+export const MetaForm = () => {
+  const [forms, setForms] = useState<FormsType>({})
   const { clientForm } = useAppSelector(state => state.customerSlice)
   const dispatch = useAppDispatch()
 
@@ -68,7 +66,6 @@ export default function MetaForm() {
       })
     )
   }
-  console.log(clientForm)
   return (
     <>
       <TableContainer>
@@ -81,38 +78,37 @@ export default function MetaForm() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {Object.keys(forms).map(key_id => {
-              console.log(clientForm.metadata)
-              return (
-                <TableRow key={key_id}>
-                  <StyledCell>
-                    <InputField
-                      title=''
-                      name='key'
-                      value={clientForm.metadata[key_id].key}
-                      onChange={e => onChangeClient(e, key_id)}
-                    />
-                  </StyledCell>
-                  <StyledCell>
-                    <InputField
-                      title=''
-                      name='value'
-                      value={clientForm.metadata[key_id].value}
-                      onChange={e => onChangeClient(e, key_id)}
-                    />
-                  </StyledCell>
-                  <StyledCell
-                    onClick={() => removeKeyValue(key_id)}
-                    sx={{
-                      cursor: 'pointer',
-                      '&:hover': { bgcolor: '#d32f2f29' },
-                    }}
-                  >
-                    <CloseIcon color='error' />
-                  </StyledCell>
-                </TableRow>
-              )
-            })}
+            {Object.keys(forms).map(key_id => (
+              <TableRow key={key_id}>
+                <StyledCell>
+                  <InputField
+                    title=''
+                    name='key'
+                    helperText=''
+                    value={clientForm.metadata[key_id].key}
+                    onChange={e => onChangeClient(e, key_id)}
+                  />
+                </StyledCell>
+                <StyledCell>
+                  <InputField
+                    title=''
+                    name='value'
+                    helperText=''
+                    value={clientForm.metadata[key_id].value}
+                    onChange={e => onChangeClient(e, key_id)}
+                  />
+                </StyledCell>
+                <StyledCell
+                  onClick={() => removeKeyValue(key_id)}
+                  sx={{
+                    cursor: 'pointer',
+                    '&:hover': { bgcolor: '#d32f2f29' },
+                  }}
+                >
+                  <CloseIcon color='error' />
+                </StyledCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
         {!Object.keys(forms).length && <EmptyInfo />}
