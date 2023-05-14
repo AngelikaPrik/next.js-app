@@ -1,9 +1,8 @@
 import { AppBar, Typography, Toolbar, styled, Box } from '@mui/material'
-import SearchItem from '../search-item'
 import StyledButton from '../styled-button'
-import { useAppSelector } from '@/hooks/redux'
-import { useDispatch } from 'react-redux'
-import { setModal } from '@/store/slices/modalSlice'
+import { observer } from 'mobx-react-lite'
+import { modalStore } from '@/store'
+import { SearchItem } from '../search-item'
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: theme.palette.common.white,
@@ -11,11 +10,8 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   boxShadow: 'none',
 }))
 
-export default function Header() {
-  const { modal } = useAppSelector(state => state.modalSlice)
-  const dispatch = useDispatch()
-
-  const onToggleModal = () => dispatch(setModal(!modal))
+export const Header = observer(() => {
+  const onToggleModal = () => modalStore.showModal()
 
   return (
     <StyledAppBar position='static'>
@@ -34,4 +30,4 @@ export default function Header() {
       </Toolbar>
     </StyledAppBar>
   )
-}
+})

@@ -9,8 +9,8 @@ import {
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import StyledButton from './styled-button'
-import { useAppDispatch, useAppSelector } from '@/hooks/redux'
-import { setModal } from '@/store/slices/modalSlice'
+import { observer } from 'mobx-react-lite'
+import { modalStore } from '@/store'
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -51,11 +51,11 @@ function StyledDialogTitle(props: DialogTitleProps) {
   )
 }
 
-export default function Modal(props: PropsType) {
+export const Modal = observer((props: PropsType) => {
   const { title, textButton, onClick, children } = props
-  const { modal } = useAppSelector(state => state.modalSlice)
-  const dispatch = useAppDispatch()
-  const handleClose = () => dispatch(setModal(false))
+  const { modal } = modalStore
+
+  const handleClose = () => modalStore.closeModal()
 
   return (
     <BootstrapDialog onClose={handleClose} open={modal}>
@@ -68,8 +68,7 @@ export default function Modal(props: PropsType) {
       </DialogActions>
     </BootstrapDialog>
   )
-}
-
+})
 interface PropsType {
   title: string
   textButton: string

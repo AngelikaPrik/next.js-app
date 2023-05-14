@@ -1,12 +1,11 @@
 import { ChangeEvent, useState } from 'react'
-
-import { useAppDispatch, useAppSelector } from '@/hooks/redux'
-import { setClientForm } from '@/store/slices/customerSlice'
 import StyledButton from '../styled-button'
 import { Box, Typography } from '@mui/material'
 import { v4 as uuidv4 } from 'uuid'
 import { InputField } from '../input-field'
 import { createForm } from './utils'
+import { observer } from 'mobx-react-lite'
+import { customersStore } from '@/store'
 
 type FormsType = Record<string, Record<string, string>>
 
@@ -14,32 +13,20 @@ const initialForms: FormsType = {
   main: createForm('Email', 'invoice_emails', 'Введите email'),
 }
 
-export const EmailsForm = () => {
+export const EmailsForm = observer(() => {
+  const { invoice_emails } = customersStore.customerData
   const [forms, setForms] = useState(initialForms)
-  const { clientForm } = useAppSelector(state => state.customerSlice)
-  const dispatch = useAppDispatch()
 
   const onChangeClient = (e: ChangeEvent<HTMLInputElement>, key: string) => {
     const { value } = e.target
-
-    dispatch(
-      setClientForm({
-        ...clientForm,
-        invoice_emails: { ...clientForm.invoice_emails, [key]: value },
-      })
-    )
+    customersStore.setEmailsKey(key, value)
   }
 
   const addEmail = () => {
     const key = `${uuidv4()}`
     const newForm = { ...initialForms.main }
     setForms(prev => ({ ...prev, [key]: newForm }))
-    dispatch(
-      setClientForm({
-        ...clientForm,
-        invoice_emails: { ...clientForm.invoice_emails, [key]: '' },
-      })
-    )
+    customersStore.setEmailsKey(key, '')
   }
 
   const removeEmail = (key: string) => {
@@ -48,7 +35,9 @@ export const EmailsForm = () => {
       delete newForm[key]
       return newForm
     })
+    customersStore.removeEmailKey(key)
   }
+
   return (
     <>
       {Object.keys(forms).map(key => {
@@ -65,7 +54,7 @@ export const EmailsForm = () => {
               <InputField
                 title={title}
                 name={name}
-                value={clientForm.invoice_emails[key]}
+                value={invoice_emails[key]}
                 onChange={e => onChangeClient(e, key)}
               />
             </Box>
@@ -86,4 +75,4 @@ export const EmailsForm = () => {
       </StyledButton>
     </>
   )
-}
+})

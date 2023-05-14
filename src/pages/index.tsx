@@ -1,6 +1,10 @@
 import Head from 'next/head'
-import { Customer, CustomerRequest } from '@/models'
-
+import {
+  IBankAccountRequest,
+  ICustomer,
+  ICustomerRequest,
+  IOrganizationRequest,
+} from '@/models'
 import {
   DataGrid,
   GridColDef,
@@ -8,17 +12,15 @@ import {
   GridRenderCellParams,
 } from '@mui/x-data-grid'
 import moment from 'moment'
-
 import FileCopyIcon from '@mui/icons-material/FileCopy'
 import { IconButton } from '@mui/material'
 import Layout from '@/components/layout'
 import { getAllCustomers, postCustomer } from '@/service/customer-service'
-import Modal from '@/components/modal'
-
-import { useMemo } from 'react'
-import { useAppDispatch, useAppSelector } from '@/hooks/redux'
+import { Modal } from '@/components/modal'
 import StyledAccordions from '@/components/accordion'
-import { setModal } from '@/store/slices/modalSlice'
+import { observer } from 'mobx-react-lite'
+import { modalStore, customersStore } from '@/store'
+import { useMemo } from 'react'
 
 const columns: GridColDef[] = [
   { field: 'name', headerName: 'Имя', type: 'string', width: 220 },
@@ -68,66 +70,21 @@ const columns: GridColDef[] = [
 ]
 
 interface PropsType {
-  customers: Customer[]
+  customers: ICustomer[]
 }
 
-export default function Home({ customers }: PropsType) {
-  const { filteredData, clientForm } = useAppSelector(
-    state => state.customerSlice
-  )
-  const dispatch = useAppDispatch()
+const Home = observer(({ customers }: PropsType) => {
+  const { filteredCustomers, customerData } = customersStore
 
   const filteredClients = useMemo(() => {
     return customers
-      .filter(({ name }) =>
-        name.toLowerCase().includes(filteredData.toLowerCase())
-      )
+      .filter(({ name }) => name.toLowerCase().includes(filteredCustomers))
       .map(item => item)
-  }, [customers, filteredData])
-
-  const convertClientToRequest = (): CustomerRequest => {
-    const {
-      customer,
-      organization,
-      bank_accounts,
-      metadata,
-      invoice_emails,
-      invoice_prefix,
-    } = clientForm
-
-    const customerRequest: CustomerRequest = {
-      name: customer.name,
-      email: customer.email,
-      deferral_days: customer.deferral_days,
-      credit_limit: customer.credit_limit,
-      organization: {
-        name: organization.name,
-        inn: organization.inn,
-        kpp: organization.kpp,
-        ogrn: organization.ogrn,
-        addr: organization.addr,
-        bank_accounts: Object.keys(bank_accounts).map(key => {
-          const account = bank_accounts[key]
-          return {
-            name: account.name,
-            bik: account.bik,
-            account_number: account.account_number,
-            corr_account_number: account.corr_account_number,
-            is_default: account.is_default,
-          }
-        }),
-      },
-      metadata,
-      invoice_emails: Object.values(invoice_emails),
-      invoice_prefix,
-    }
-
-    return customerRequest
-  }
+  }, [customers, filteredCustomers])
 
   const postCustomerData = () => {
-    postCustomer(convertClientToRequest())
-    dispatch(setModal(false))
+    postCustomer(customersStore.convertCustomerData)
+    modalStore.closeModal()
   }
 
   return (
@@ -157,7 +114,7 @@ export default function Home({ customers }: PropsType) {
       </Layout>
     </>
   )
-}
+})
 
 export async function getServerSideProps() {
   const response = await getAllCustomers()
@@ -169,3 +126,5 @@ export async function getServerSideProps() {
     },
   }
 }
+
+export default Home

@@ -1,9 +1,8 @@
-import React, { ChangeEvent } from 'react'
-
-import { useAppDispatch, useAppSelector } from '@/hooks/redux'
-import { setClientForm } from '@/store/slices/customerSlice'
+import { ChangeEvent } from 'react';
 import { InputField } from '../input-field'
 import { createForm } from './utils'
+import { observer } from 'mobx-react-lite'
+import { customersStore } from '@/store'
 
 const forms = [
   createForm('Имя', 'name', 'Введите имя'),
@@ -20,18 +19,12 @@ const forms = [
   ),
 ]
 
-export const CustomerForm = () => {
-  const { clientForm } = useAppSelector(state => state.customerSlice)
-  const dispatch = useAppDispatch()
+export const CustomerForm = observer(() => {
+  const { customer } = customersStore.customerData
 
   const onChangeClient = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    dispatch(
-      setClientForm({
-        ...clientForm,
-        customer: { ...clientForm.customer, [name]: value },
-      })
-    )
+    customersStore.setCustomerKey(name, value)
   }
 
   return (
@@ -42,10 +35,11 @@ export const CustomerForm = () => {
           title={title}
           name={name}
           helperText={helper_text}
-          value={clientForm.customer[name]}
+          error={false}
+          value={customer[name]}
           onChange={onChangeClient}
         />
       ))}
     </>
   )
-}
+})

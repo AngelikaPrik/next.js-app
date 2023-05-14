@@ -1,8 +1,8 @@
 import React from 'react'
 import { InputBase, styled, alpha } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
-import { useAppDispatch, useAppSelector } from '@/hooks/redux'
-import { setFilteredData } from '@/store/slices/customerSlice'
+import { observer } from 'mobx-react-lite'
+import { customersStore } from '@/store'
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -44,13 +44,12 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }))
 
-export default function SearchItem() {
-  const { filteredData } = useAppSelector(state => state.customerSlice)
-  const dispatch = useAppDispatch()
-
+export const SearchItem = observer(() => {
   const onChangeFilteredData = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setFilteredData(e.target.value))
+    const { value } = e.target
+    customersStore.setFilteredCustomers(value)
   }
+
   return (
     <Search>
       <SearchIconWrapper>
@@ -59,9 +58,9 @@ export default function SearchItem() {
       <StyledInputBase
         placeholder='Поиск…'
         onChange={onChangeFilteredData}
-        value={filteredData}
+        value={customersStore.filteredCustomers}
         inputProps={{ 'aria-label': 'search' }}
       />
     </Search>
   )
-}
+})

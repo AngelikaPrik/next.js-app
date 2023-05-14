@@ -1,6 +1,4 @@
 import { ChangeEvent } from 'react'
-
-import { useAppDispatch, useAppSelector } from '@/hooks/redux'
 import {
   TableContainer,
   Table,
@@ -18,7 +16,8 @@ import CloseIcon from '@mui/icons-material/Close'
 import { useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { InputField } from '../input-field'
-import { setClientForm } from '@/store/slices/customerSlice'
+import { observer } from 'mobx-react-lite'
+import { customersStore } from '@/store'
 
 type FormsType = Record<string, Record<string, string>>
 
@@ -26,46 +25,33 @@ const StyledCell = styled(TableCell)({
   border: '1px solid #e0e0e0',
 })
 
-export const MetaForm = () => {
+export const MetaForm = observer(() => {
   const [forms, setForms] = useState<FormsType>({})
-  const { clientForm } = useAppSelector(state => state.customerSlice)
-  const dispatch = useAppDispatch()
+  const { metadata } = customersStore.customerData
 
-  const addKeyValue = () => {
+  const addMeta = () => {
     const newForm = { title: '', name: 'meta', helper_text: '' }
-    const key_id = `${uuidv4()}`
+    const key = `${uuidv4()}`
 
-    setForms(prev => ({ ...prev, [key_id]: newForm }))
-
-    dispatch(
-      setClientForm({
-        ...clientForm,
-        metadata: { ...clientForm.metadata, [key_id]: { key: '', value: '' } },
-      })
-    )
+    setForms(prev => ({ ...prev, [key]: newForm }))
+    customersStore.setMetaKey(key, '', '')
   }
 
-  const removeKeyValue = (key: string) => {
+  const removeMeta = (key: string) => {
     setForms(prev => {
       const newForm = { ...prev }
       delete newForm[key]
       return newForm
     })
+
+    customersStore.removeMetaKey(key)
   }
 
   const onChangeClient = (e: ChangeEvent<HTMLInputElement>, key: string) => {
     const { name, value } = e.target
-
-    dispatch(
-      setClientForm({
-        ...clientForm,
-        metadata: {
-          ...clientForm.metadata,
-          [key]: { ...clientForm.metadata[key], [name]: value },
-        },
-      })
-    )
+    customersStore.setMetaKey(key, name, value)
   }
+
   return (
     <>
       <TableContainer>
@@ -85,7 +71,7 @@ export const MetaForm = () => {
                     title=''
                     name='key'
                     helperText=''
-                    value={clientForm.metadata[key_id].key}
+                    value={metadata[key_id].key}
                     onChange={e => onChangeClient(e, key_id)}
                   />
                 </StyledCell>
@@ -94,12 +80,12 @@ export const MetaForm = () => {
                     title=''
                     name='value'
                     helperText=''
-                    value={clientForm.metadata[key_id].value}
+                    value={metadata[key_id].value}
                     onChange={e => onChangeClient(e, key_id)}
                   />
                 </StyledCell>
                 <StyledCell
-                  onClick={() => removeKeyValue(key_id)}
+                  onClick={() => removeMeta(key_id)}
                   sx={{
                     cursor: 'pointer',
                     '&:hover': { bgcolor: '#d32f2f29' },
@@ -115,7 +101,7 @@ export const MetaForm = () => {
       </TableContainer>
       <Box display='flex' justifyContent='end' pt={1}>
         <Box
-          onClick={addKeyValue}
+          onClick={addMeta}
           sx={{ cursor: 'pointer', '& *:hover': { opacity: 0.6 } }}
         >
           <Typography variant='body1' color='primary'>
@@ -125,7 +111,7 @@ export const MetaForm = () => {
       </Box>
     </>
   )
-}
+})
 
 const EmptyInfo = () => {
   return (

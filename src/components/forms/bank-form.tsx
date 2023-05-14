@@ -1,15 +1,11 @@
 import { ChangeEvent, useState } from 'react'
-
-import { useAppDispatch, useAppSelector } from '@/hooks/redux'
-import {
-  setClientForm,
-  setDefaultAccountForAll,
-} from '@/store/slices/customerSlice'
 import StyledButton from '../styled-button'
 import { Box, Switch, Typography } from '@mui/material'
 import { v4 as uuidv4 } from 'uuid'
 import { InputField } from '../input-field'
 import { createForm } from './utils'
+import { observer } from 'mobx-react-lite'
+import { customersStore } from '@/store'
 
 type FormsType = Record<string, Record<string, string>[]>
 
@@ -26,46 +22,21 @@ const initialForms: FormsType = {
   ],
 }
 
-export const BankForm = () => {
+export const BankForm = observer(() => {
+  const { bank_accounts } = customersStore.customerData
   const [forms, setForms] = useState<FormsType>(initialForms)
-  const { clientForm } = useAppSelector(state => state.customerSlice)
-  const dispatch = useAppDispatch()
 
   const onChangeClient = (e: ChangeEvent<HTMLInputElement>, key: string) => {
     const { name, value } = e.target
-
-    dispatch(
-      setClientForm({
-        ...clientForm,
-        bank_accounts: {
-          ...clientForm.bank_accounts,
-          [key]: { ...clientForm.bank_accounts[key], [name]: value },
-        },
-      })
-    )
+    customersStore.setBankAccountsKey(key, name, value)
   }
 
   const addBankAccount = () => {
     const key = `${uuidv4()}`
     const newForm = [...initialForms.main]
-    const valueForm = {
-      name: '',
-      bik: '',
-      account_number: '',
-      corr_account_number: '',
-      is_default: false,
-    }
 
     setForms(prev => ({ ...prev, [key]: newForm }))
-    dispatch(
-      setClientForm({
-        ...clientForm,
-        bank_accounts: {
-          ...clientForm.bank_accounts,
-          [key]: valueForm,
-        },
-      })
-    )
+    customersStore.setBankAccountsKey(key, '', '')
   }
 
   const removeBankAccount = (key: string) => {
@@ -74,23 +45,14 @@ export const BankForm = () => {
       delete newForm[key]
       return newForm
     })
+    customersStore.removeBankAccountKey(key)
   }
 
   const setDefaultAccount = (key: string) => {
-    dispatch(
-      setClientForm({
-        ...clientForm,
-        bank_accounts: {
-          ...clientForm.bank_accounts,
-          [key]: {
-            ...clientForm.bank_accounts[key],
-            is_default: !clientForm.bank_accounts[key].is_default,
-          },
-        },
-      })
-    )
-    dispatch(setDefaultAccountForAll(key))
+    customersStore.setBankAccountsKey(key, 'is_default', '')
+    customersStore.setDefaultAccountForAll(key)
   }
+  console.log(bank_accounts)
 
   return (
     <>
@@ -108,7 +70,7 @@ export const BankForm = () => {
                     key={i}
                     title={title}
                     name={name}
-                    value={clientForm.bank_accounts[key][name]}
+                    value={bank_accounts[key][name]}
                     onChange={e => onChangeClient(e, key)}
                   />
                 ))}
@@ -135,11 +97,7 @@ export const BankForm = () => {
                 Дефолтный счет
               </Typography>
               <Switch
-                checked={
-                  clientForm.bank_accounts[key].is_default as
-                    | boolean
-                    | undefined
-                }
+                checked={bank_accounts[key].is_default as boolean | undefined}
                 onClick={() => setDefaultAccount(key)}
               />
             </Box>
@@ -152,4 +110,4 @@ export const BankForm = () => {
       </StyledButton>
     </>
   )
-}
+})
