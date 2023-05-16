@@ -2,7 +2,7 @@ import { ChangeEvent, useState } from 'react'
 import StyledButton from '../styled-button'
 import { Box, Typography } from '@mui/material'
 import { v4 as uuidv4 } from 'uuid'
-import { InputField } from '../input-field'
+import { InputForm } from '../input-form'
 import { createForm } from './utils'
 import { observer } from 'mobx-react-lite'
 import { customersStore } from '@/store'
@@ -15,11 +15,18 @@ const initialForms: FormsType = {
 
 export const EmailsForm = observer(() => {
   const { invoice_emails } = customersStore.customerData
-  const [forms, setForms] = useState(initialForms)
+  const [forms, setForms] = useState<FormsType>(initialForms)
+  const [errors, setErrors] = useState<Record<string, boolean>>({})
 
   const onChangeClient = (e: ChangeEvent<HTMLInputElement>, key: string) => {
     const { value } = e.target
     customersStore.setEmailsKey(key, value)
+
+    if (!value) {
+      setErrors(prevErrors => ({ ...prevErrors, [key]: true }))
+    } else {
+      setErrors(prevErrors => ({ ...prevErrors, [key]: false }))
+    }
   }
 
   const addEmail = () => {
@@ -35,13 +42,17 @@ export const EmailsForm = observer(() => {
       delete newForm[key]
       return newForm
     })
+    setErrors(prev => {
+      const newErrors = { ...prev }
+      delete newErrors[key]
+      return newErrors
+    })
     customersStore.removeEmailKey(key)
   }
-
   return (
     <>
       {Object.keys(forms).map(key => {
-        const { title, name } = forms[key]
+        const { title, name, helper_text } = forms[key]
         return (
           <Box
             key={key}
@@ -51,11 +62,13 @@ export const EmailsForm = observer(() => {
             sx={{ borderBottom: '1px solid #ccc' }}
           >
             <Box width='55%' mb={1}>
-              <InputField
+              <InputForm
                 title={title}
                 name={name}
                 value={invoice_emails[key]}
                 onChange={e => onChangeClient(e, key)}
+                helperText={errors[key] ? helper_text : ''}
+                error={errors[key]}
               />
             </Box>
             {key !== 'main' && (

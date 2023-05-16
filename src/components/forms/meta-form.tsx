@@ -15,7 +15,7 @@ import InboxIcon from '@mui/icons-material/Inbox'
 import CloseIcon from '@mui/icons-material/Close'
 import { useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { InputField } from '../input-field'
+import { InputForm } from '../input-form'
 import { observer } from 'mobx-react-lite'
 import { customersStore } from '@/store'
 
@@ -67,7 +67,7 @@ export const MetaForm = observer(() => {
             {Object.keys(forms).map(key_id => (
               <TableRow key={key_id}>
                 <StyledCell>
-                  <InputField
+                  <InputForm
                     title=''
                     name='key'
                     helperText=''
@@ -76,7 +76,7 @@ export const MetaForm = observer(() => {
                   />
                 </StyledCell>
                 <StyledCell>
-                  <InputField
+                  <InputForm
                     title=''
                     name='value'
                     helperText=''

@@ -1,7 +1,7 @@
 import { TextField } from '@mui/material'
 import { ChangeEvent } from 'react'
 
-export const InputField = (props: InputFieldProps) => {
+export const InputForm = (props: InputFormProps) => {
   const { title, name, value, onChange, helperText, error } = props
   return (
     <TextField
@@ -19,7 +19,7 @@ export const InputField = (props: InputFieldProps) => {
   )
 }
 
-interface InputFieldProps {
+interface InputFormProps {
   title: string
   name: string
   value: string | number | boolean | null

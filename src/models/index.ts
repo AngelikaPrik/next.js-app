@@ -73,3 +73,16 @@ export interface IBankAccountRequest {
   corr_account_number: string
   is_default: boolean
 }
+
+export interface IFormStore {
+  customer: Record<string, string | number | null>
+  organization: Record<string, string>
+  bank_accounts: {
+    [key: string]: Record<string, string | boolean>
+  }
+  metadata: {
+    [key: string]: Record<string, string>
+  }
+  invoice_prefix: string
+  invoice_emails: Record<string, string>
+}

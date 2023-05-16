@@ -1,10 +1,5 @@
 import Head from 'next/head'
-import {
-  IBankAccountRequest,
-  ICustomer,
-  ICustomerRequest,
-  IOrganizationRequest,
-} from '@/models'
+import { ICustomer } from '@/models'
 import {
   DataGrid,
   GridColDef,
@@ -20,7 +15,9 @@ import { Modal } from '@/components/modal'
 import StyledAccordions from '@/components/accordion'
 import { observer } from 'mobx-react-lite'
 import { modalStore, customersStore } from '@/store'
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
+import { isDataComplete } from '@/utils/isDataComplete'
 
 const columns: GridColDef[] = [
   { field: 'name', headerName: 'Имя', type: 'string', width: 220 },
@@ -74,7 +71,10 @@ interface PropsType {
 }
 
 const Home = observer(({ customers }: PropsType) => {
-  const { filteredCustomers, customerData } = customersStore
+  const { filteredCustomers } = customersStore
+  const [notifyMessage, setNotifyMessage] = useState<boolean>(false)
+
+  const router = useRouter()
 
   const filteredClients = useMemo(() => {
     return customers
@@ -82,10 +82,23 @@ const Home = observer(({ customers }: PropsType) => {
       .map(item => item)
   }, [customers, filteredCustomers])
 
+  const refreshData = () => router.replace(router.asPath)
+
   const postCustomerData = () => {
-    postCustomer(customersStore.convertCustomerData)
-    modalStore.closeModal()
+    if (isDataComplete(customersStore.convertCustomerData)) {
+      postCustomer(customersStore.convertCustomerData)
+      refreshData()
+      modalStore.closeModal()
+    } else {
+      setNotifyMessage(true)
+    }
   }
+
+  useEffect(() => {
+    if (notifyMessage) {
+      setTimeout(() => setNotifyMessage(false), 2000)
+    }
+  }, [notifyMessage])
 
   return (
     <>
@@ -100,7 +113,6 @@ const Home = observer(({ customers }: PropsType) => {
           rows={filteredClients}
           columns={columns}
           checkboxSelection
-          disableRowSelectionOnClick
           hideFooterPagination
           hideFooter
         />
@@ -108,6 +120,7 @@ const Home = observer(({ customers }: PropsType) => {
           title='Создание клиента'
           textButton='Создать'
           onClick={postCustomerData}
+          notify={notifyMessage}
         >
           <StyledAccordions />
         </Modal>

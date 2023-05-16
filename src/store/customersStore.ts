@@ -1,20 +1,7 @@
-import { ICustomerRequest } from '@/models'
+import { ICustomerRequest, IFormStore } from '@/models'
 import { makeAutoObservable } from 'mobx'
 
-interface IForm {
-  customer: Record<string, string | number | null>
-  organization: Record<string, string>
-  bank_accounts: {
-    [key: string]: Record<string, string | boolean>
-  }
-  metadata: {
-    [key: string]: Record<string, string>
-  }
-  invoice_prefix: string
-  invoice_emails: Record<string, string>
-}
-
-const initialCustomerData = {
+const initialCustomerData: IFormStore = {
   customer: { name: '', email: '', deferral_days: null, credit_limit: null },
   organization: { name: '', inn: '', kpp: '', ogrn: '', addr: '' },
   bank_accounts: {
@@ -27,13 +14,13 @@ const initialCustomerData = {
     },
   },
   metadata: {},
-  invoice_prefix: '',
+  invoice_prefix: 'invoice_prefix',
   invoice_emails: { main: '' },
 }
 
 export class CustomersStore {
   filteredCustomers: string = ''
-  customerData: IForm = initialCustomerData
+  customerData: IFormStore = initialCustomerData
 
   constructor() {
     makeAutoObservable(this)

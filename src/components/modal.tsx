@@ -6,6 +6,8 @@ import {
   DialogActions,
   styled,
   IconButton,
+  Box,
+  Typography,
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import StyledButton from './styled-button'
@@ -52,7 +54,7 @@ function StyledDialogTitle(props: DialogTitleProps) {
 }
 
 export const Modal = observer((props: PropsType) => {
-  const { title, textButton, onClick, children } = props
+  const { title, textButton, onClick, children, notify } = props
   const { modal } = modalStore
 
   const handleClose = () => modalStore.closeModal()
@@ -62,9 +64,18 @@ export const Modal = observer((props: PropsType) => {
       <StyledDialogTitle id='dialog-title' onClose={handleClose}>
         {title}
       </StyledDialogTitle>
-      <DialogContent dividers>{children}</DialogContent>
+      <DialogContent dividers>
+        {children}
+        {notify && (
+          <Typography color='error' textAlign='center'>
+            Заполните все обязательные поля
+          </Typography>
+        )}
+      </DialogContent>
       <DialogActions sx={{ justifyContent: 'flex-start' }}>
-        <StyledButton onClick={onClick}>{textButton}</StyledButton>
+        <Box>
+          <StyledButton onClick={onClick}>{textButton}</StyledButton>
+        </Box>
       </DialogActions>
     </BootstrapDialog>
   )
@@ -72,6 +83,7 @@ export const Modal = observer((props: PropsType) => {
 interface PropsType {
   title: string
   textButton: string
+  notify?: boolean
   onClick: () => void
   children: ReactNode
 }

@@ -2,7 +2,7 @@ import { ChangeEvent, useState } from 'react'
 import StyledButton from '../styled-button'
 import { Box, Switch, Typography } from '@mui/material'
 import { v4 as uuidv4 } from 'uuid'
-import { InputField } from '../input-field'
+import { InputForm } from '../input-form'
 import { createForm } from './utils'
 import { observer } from 'mobx-react-lite'
 import { customersStore } from '@/store'
@@ -25,10 +25,21 @@ const initialForms: FormsType = {
 export const BankForm = observer(() => {
   const { bank_accounts } = customersStore.customerData
   const [forms, setForms] = useState<FormsType>(initialForms)
+  const [errors, setErrors] = useState<Record<string, Record<string, boolean>>>(
+    {}
+  )
 
   const onChangeClient = (e: ChangeEvent<HTMLInputElement>, key: string) => {
     const { name, value } = e.target
-    customersStore.setBankAccountsKey(key, name, value)
+
+    const valideValue = name == 'name' ? value : value.replace(/\D/g, '')
+    customersStore.setBankAccountsKey(key, name, valideValue)
+
+    if (!value) {
+      setErrors(prev => ({ ...prev, [key]: { ...prev[key], [name]: true } }))
+    } else {
+      setErrors(prev => ({ ...prev, [key]: { ...prev[key], [name]: false } }))
+    }
   }
 
   const addBankAccount = () => {
@@ -45,6 +56,11 @@ export const BankForm = observer(() => {
       delete newForm[key]
       return newForm
     })
+    setErrors(prev => {
+      const newErrors = { ...prev }
+      delete newErrors[key]
+      return newErrors
+    })
     customersStore.removeBankAccountKey(key)
   }
 
@@ -52,7 +68,6 @@ export const BankForm = observer(() => {
     customersStore.setBankAccountsKey(key, 'is_default', '')
     customersStore.setDefaultAccountForAll(key)
   }
-  console.log(bank_accounts)
 
   return (
     <>
@@ -65,13 +80,15 @@ export const BankForm = observer(() => {
               justifyContent='space-between'
             >
               <Box width='55%' mb={1}>
-                {forms[key].map(({ title, name }, i) => (
-                  <InputField
+                {forms[key].map(({ title, name, helper_text }, i) => (
+                  <InputForm
                     key={i}
                     title={title}
                     name={name}
                     value={bank_accounts[key][name]}
                     onChange={e => onChangeClient(e, key)}
+                    helperText={errors[key]?.[name] ? helper_text : ''}
+                    error={errors[key]?.[name]}
                   />
                 ))}
               </Box>
