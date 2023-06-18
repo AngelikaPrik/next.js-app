@@ -85,7 +85,7 @@ export const BankForm = observer(() => {
                     key={i}
                     title={title}
                     name={name}
-                    value={bank_accounts[key][name]}
+                    value={bank_accounts[key]?.[name] || ''}
                     onChange={e => onChangeClient(e, key)}
                     helperText={errors[key]?.[name] ? helper_text : ''}
                     error={errors[key]?.[name]}
@@ -114,7 +114,7 @@ export const BankForm = observer(() => {
                 Дефолтный счет
               </Typography>
               <Switch
-                checked={bank_accounts[key].is_default as boolean | undefined}
+                checked={bank_accounts[key]?.is_default as boolean || false}
                 onClick={() => setDefaultAccount(key)}
               />
             </Box>
