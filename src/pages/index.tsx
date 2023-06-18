@@ -86,7 +86,7 @@ const Home = observer(({ customers }: PropsType) => {
   const refreshData = () => router.replace(router.asPath)
 
   const postCustomerData = async () => {
-    if (isDataComplete(customersStore.convertCustomerData)) {
+    if (true) {
       setIsLoading(true)
       try {
         const { status } = await postCustomer(

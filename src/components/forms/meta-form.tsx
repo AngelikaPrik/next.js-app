@@ -71,7 +71,7 @@ export const MetaForm = observer(() => {
                     title=''
                     name='key'
                     helperText=''
-                    value={metadata[key_id].key}
+                    value={metadata[key_id]?.key}
                     onChange={e => onChangeClient(e, key_id)}
                   />
                 </StyledCell>
@@ -80,7 +80,7 @@ export const MetaForm = observer(() => {
                     title=''
                     name='value'
                     helperText=''
-                    value={metadata[key_id].value}
+                    value={metadata[key_id]?.value}
                     onChange={e => onChangeClient(e, key_id)}
                   />
                 </StyledCell>
