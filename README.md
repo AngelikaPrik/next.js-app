@@ -6,6 +6,7 @@ https://next-js-jc1a9u5p2-angelikaprik.vercel.app/
 First, run the development server:
 
 ```bash
+npm install
 npm run dev
 # or
 yarn dev
