@@ -1,5 +1,5 @@
 import { ChangeEvent, useState } from 'react'
-import StyledButton from '../styled-button'
+import StyledButton from '../layout/styled-button'
 import { Box, Typography } from '@mui/material'
 import { v4 as uuidv4 } from 'uuid'
 import { InputForm } from '../input-form'

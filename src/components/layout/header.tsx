@@ -1,5 +1,5 @@
 import { AppBar, Typography, Toolbar, styled, Box } from '@mui/material'
-import StyledButton from '../styled-button'
+import StyledButton from './styled-button'
 import { observer } from 'mobx-react-lite'
 import { modalStore } from '@/store'
 import { SearchItem } from '../search-item'

@@ -73,6 +73,7 @@ interface PropsType {
 const Home = observer(({ customers }: PropsType) => {
   const { filteredCustomers } = customersStore
   const [notifyMessage, setNotifyMessage] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const router = useRouter()
 
@@ -84,11 +85,24 @@ const Home = observer(({ customers }: PropsType) => {
 
   const refreshData = () => router.replace(router.asPath)
 
-  const postCustomerData = () => {
+  const postCustomerData = async () => {
     if (isDataComplete(customersStore.convertCustomerData)) {
-      postCustomer(customersStore.convertCustomerData)
-      refreshData()
-      modalStore.closeModal()
+      setIsLoading(true)
+      try {
+        const { status } = await postCustomer(
+          customersStore.convertCustomerData
+        )
+        if (status === 201) {
+          setIsLoading(false)
+          refreshData()
+          modalStore.closeModal()
+          customersStore.setInitialData()
+        }
+      } catch (error) {
+        console.error('An error occurred while posting customer data:', error)
+      } finally {
+        setIsLoading(false)
+      }
     } else {
       setNotifyMessage(true)
     }
@@ -121,6 +135,7 @@ const Home = observer(({ customers }: PropsType) => {
           textButton='Создать'
           onClick={postCustomerData}
           notify={notifyMessage}
+          isLoading={isLoading}
         >
           <StyledAccordions />
         </Modal>

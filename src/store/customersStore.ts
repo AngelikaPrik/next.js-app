@@ -128,7 +128,10 @@ export class CustomersStore {
       invoice_emails: Object.values(this.customerData.invoice_emails),
       invoice_prefix: this.customerData.invoice_prefix,
     }
-    this.customerData = initialCustomerData
     return data
+  }
+
+  setInitialData() {
+    this.customerData = initialCustomerData
   }
 }

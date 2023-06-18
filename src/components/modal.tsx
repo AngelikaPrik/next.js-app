@@ -8,9 +8,10 @@ import {
   IconButton,
   Box,
   Typography,
+  CircularProgress,
 } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
-import StyledButton from './styled-button'
+import StyledButton from './layout/styled-button'
 import { observer } from 'mobx-react-lite'
 import { modalStore } from '@/store'
 
@@ -54,7 +55,7 @@ function StyledDialogTitle(props: DialogTitleProps) {
 }
 
 export const Modal = observer((props: PropsType) => {
-  const { title, textButton, onClick, children, notify } = props
+  const { title, textButton, onClick, children, notify, isLoading } = props
   const { modal } = modalStore
 
   const handleClose = () => modalStore.closeModal()
@@ -73,8 +74,14 @@ export const Modal = observer((props: PropsType) => {
         )}
       </DialogContent>
       <DialogActions sx={{ justifyContent: 'flex-start' }}>
-        <Box>
-          <StyledButton onClick={onClick}>{textButton}</StyledButton>
+        <Box width={160}>
+          <StyledButton onClick={onClick} disabled={isLoading}>
+            {isLoading ? (
+              <CircularProgress sx={{ color: '#fff' }} size={22} />
+            ) : (
+              textButton
+            )}
+          </StyledButton>
         </Box>
       </DialogActions>
     </BootstrapDialog>
@@ -85,5 +92,6 @@ interface PropsType {
   textButton: string
   notify?: boolean
   onClick: () => void
+  isLoading: boolean
   children: ReactNode
 }
